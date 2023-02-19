@@ -27,6 +27,12 @@ export class FlightDashboard extends LitElement {
       height: {
         type: Number,
       },
+      cameraQuery: {
+        type: Number,
+      },
+      currentPlace: {
+        type: Object,
+      },
     };
   }
 
@@ -49,16 +55,25 @@ export class FlightDashboard extends LitElement {
         name: 'Ecublens',
         lngDeg: 6.56362,
         latDeg: 46.52474,
-        height: 1000,
+        height: 2000,
         heading: 0,
         pitch: -90,
         roll: 0,
       },
       {
+        name: 'Grand Combin',
+        lngDeg: 7.286978,
+        latDeg: 46.025880,
+        height: 3902,
+        heading: 178,
+        pitch: -5.294,
+        roll: 0,
+      },
+      {
         name: 'Zermatt',
-        lngDeg: 7.73888889,
-        latDeg: 46.02055556,
-        height: 2200,
+        lngDeg: 7.752989,
+        latDeg: 46.017516,
+        height: 2100,
         heading: 230,
         pitch: 10,
         roll: 0,
@@ -73,12 +88,14 @@ export class FlightDashboard extends LitElement {
         roll: 0,
       },
     ];
-    this.selectedPlace = {};
-    this.height = 64000;
+    this.selectedPlace = this.cameraPlaces[0];
+    this.height = 1000;
+    this.cameraQuery = 0;
+    this.currentPlace = {};
   }
 
   setHeight(height) {
-    this.height = clamp(height, 1000, 32_768_000);
+    this.height = clamp(height, 2000, 32_768_000);
   }
 
   // render fragments and render
@@ -107,17 +124,25 @@ export class FlightDashboard extends LitElement {
     `;
   };
 
-  _renderButtons = () => {
+  _renderHeightAndQueryButtons = () => {
     return html`
       <fieldset>
-        <legend>Geneva</legend>
+        <legend></legend>
         <button id="--" @click=${this._clickIncrementHeight} part="button">
           --
         </button>
         <button id="++" @click=${this._clickIncrementHeight} part="button">
           ++
         </button>
-        &nbsp; height: ${this.height} m
+        &nbsp; height: ${(+this.height).toFixed(0)} m
+        <p>
+          <button id="?" @click=${this._clickCameraQuery} part="button">
+            ?
+          </button>
+
+           <span>${JSON.stringify(this.currentPlace)}</span>
+
+        </p>
       </fieldset>
     `;
   };
@@ -131,7 +156,9 @@ export class FlightDashboard extends LitElement {
         </p>
         <cesium-viewer
           .height=${this.height}
-          .cameraCoords=${this.selectedPlace}></cesium-viewer>
+          .cameraCoords=${this.selectedPlace}
+          .cameraQuery=${this.cameraQuery}>
+        </cesium-viewer>
       </div>
     `;
   };
@@ -141,7 +168,7 @@ export class FlightDashboard extends LitElement {
 
     return html`
       <div style="border: 1px solid blue;  padding: 5px">
-        ${this._renderRadioButtons()} ${this._renderButtons()}
+        ${this._renderRadioButtons()} ${this._renderHeightAndQueryButtons()}
         ${this._renderCesiumViewer()}
       </div>
     `;
@@ -150,10 +177,6 @@ export class FlightDashboard extends LitElement {
   // listeners
 
   _clickIncrementHeight(e) {
-    // select Geneva if not selected
-    if (this.selectedPlace.name !== this.cameraPlaces[0].name) {
-      this.selectedPlace = this.cameraPlaces[0];
-    }
     const factor = e.target.id === '--' ? 0.5 : 2.0;
     this.setHeight(this.height * factor);
   }
@@ -164,6 +187,20 @@ export class FlightDashboard extends LitElement {
     );
     console.log('flight-dashboard _onChangePlace:', place);
     this.selectedPlace = place;
+  }
+
+  _clickCameraQuery(e) {
+    // increment cameraQuery to trigger a readout of the camera position
+    this.cameraQuery++;
+  }
+
+  // add listener for custom evewnt "cmera-query" from child component
+  firstUpdated() {
+    this.addEventListener('camera-query', (e) => {
+      // console.log('flight-dashboard camera-query', e.detail, e.detail.height);
+      this.currentPlace = {...e.detail};
+      this.height = this.currentPlace.height;
+    });
   }
 }
 
