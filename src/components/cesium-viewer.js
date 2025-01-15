@@ -109,6 +109,7 @@ export class CesiumViewer extends LitElement {
           /* height: auto; */
           background: thistle;
           border: solid 1px blue;
+          padding: 0;
         }
       `,
     ];

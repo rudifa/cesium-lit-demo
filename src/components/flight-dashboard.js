@@ -1,4 +1,4 @@
-import {LitElement, html} from 'lit-element';
+import {LitElement, html, css} from 'lit-element';
 
 import './cesium-viewer.js';
 
@@ -8,7 +8,7 @@ import './utils/widgets.js'; // Ensure the WidgetIncDec component is imported
 // Define Cvar instances for each camera parameter
 const lngCvar = new CvarLinWrap(-180, 180, 0, 0.01, 'Longitude');
 const latCvar = new CvarLin(-90, 90, 0, 0.01, 'Latitude');
-const heightCvar = new CvarLog(200, 4096000, 2000, 1.5, 'Height');
+const heightCvar = new CvarLog(200, 4096000, 2000, Math.sqrt(10), 'Height');
 const headingCvar = new CvarLinWrap(0, 360, 0, 5, 'Heading');
 const pitchCvar = new CvarLin(-90, 90, 0, 5, 'Pitch');
 
@@ -36,11 +36,18 @@ export class FlightDashboard extends LitElement {
     };
   }
 
+  static styles = css`
+    fieldset {
+      margin-inline: 0;
+    }
+  `;
+
   constructor() {
     super();
     // Initialize component state
     this.cameraPlaces = getCameraPlaces();
-    this.currentPlace = this.cameraPlaces[0];
+    this.initialIndex = this.cameraPlaces.length - 1;
+    this.currentPlace = this.cameraPlaces[this.initialIndex];
 
     // Set initial values for Cvars
     this._updateAllCvars();
@@ -112,7 +119,8 @@ export class FlightDashboard extends LitElement {
                 type="radio"
                 class="form-check-input"
                 value="${option.name}"
-                ?checked=${option.name === this.cameraPlaces[0].name}
+                ?checked=${option.name ===
+                this.cameraPlaces[this.initialIndex].name}
                 @change=${this._onChangePlace} />
               <label class="form-check-label">${option.name}</label>
               <br />
@@ -211,10 +219,6 @@ export class FlightDashboard extends LitElement {
 
     return html`
       <div style="border: 1px solid blue; ">
-        <p>
-          &nbsp;&lt;cesium-viewer&gt; &nbsp;&lt;/cesium-viewer&gt; instantiated
-          in flight-dashboard.js
-        </p>
         <cesium-viewer
           .cameraCoords=${this.currentPlace}
           @camera-coords=${this._handleCameraStopped}>
@@ -226,7 +230,7 @@ export class FlightDashboard extends LitElement {
   // Main render method
   render() {
     return html`
-      <div style="border: 1px solid blue;  padding: 5px">
+      <div style="border: 1px solid blue; padding: 4px">
         ${this._renderRadioButtons()} ${this._renderCameraControlWidgets()}
         ${this._renderCesiumViewer()}
       </div>
@@ -268,48 +272,12 @@ export class FlightDashboard extends LitElement {
 function getCameraPlaces() {
   return [
     {
-      name: 'Geneva',
-      lngDeg: 6.15444444,
-      latDeg: 46.20555556,
-      height: 10000,
+      name: 'Đurđenovac',
+      lngDeg: 18.0529,
+      latDeg: 45.5409,
+      height: 3000,
       heading: 0,
       pitch: -90,
-      roll: 0,
-    },
-    {
-      name: 'Ecublens',
-      lngDeg: 6.56362,
-      latDeg: 46.52474,
-      height: 2000,
-      heading: 0,
-      pitch: -90,
-      roll: 0,
-    },
-    {
-      name: 'Grand Combin',
-      lngDeg: 7.286978,
-      latDeg: 46.02588,
-      height: 3902,
-      heading: 178,
-      pitch: -5.294,
-      roll: 0,
-    },
-    {
-      name: 'Zermatt',
-      lngDeg: 7.752989,
-      latDeg: 46.017516,
-      height: 2100,
-      heading: 230,
-      pitch: 10,
-      roll: 0,
-    },
-    {
-      name: 'Triglav',
-      lngDeg: 13.83659,
-      latDeg: 46.52829,
-      height: 2100,
-      heading: 180,
-      pitch: 0,
       roll: 0,
     },
     {
@@ -331,12 +299,48 @@ function getCameraPlaces() {
       roll: 0,
     },
     {
-      name: 'Philadelphia',
-      lngDeg: -75.165222,
-      latDeg: 39.952583,
-      height: 20000,
+      name: 'Triglav',
+      lngDeg: 13.83659,
+      latDeg: 46.52829,
+      height: 2100,
+      heading: 180,
+      pitch: 0,
+      roll: 0,
+    },
+    {
+      name: 'Southampton',
+      lngDeg: -1.39630,
+      latDeg: 50.93569,
+      height: 3000,
       heading: 0,
       pitch: -90,
+      roll: 0,
+    },
+    {
+      name: 'Geneva',
+      lngDeg: 6.15444444,
+      latDeg: 46.20555556,
+      height: 10000,
+      heading: 0,
+      pitch: -90,
+      roll: 0,
+    },
+    {
+      name: 'Grand Combin',
+      lngDeg: 7.286978,
+      latDeg: 46.02588,
+      height: 3902,
+      heading: 178,
+      pitch: -5.294,
+      roll: 0,
+    },
+    {
+      name: 'Osijek again',
+      lngDeg: 18.72389,
+      latDeg: 45.55111,
+      height: 3000,
+      heading: 290,
+      pitch: -35,
       roll: 0,
     },
   ];
