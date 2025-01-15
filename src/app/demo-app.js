@@ -9,7 +9,7 @@ export class DemoApp extends LitElement {
     <div>
       <fieldset>
         <legend>
-          Prototyping a &lt;cesium-viewer&gt; Lit component v1.1.1
+          Prototyping a &lt;cesium-viewer&gt; Lit component v1.1.2
         </legend>
         <ul>
           <li>component embeds a Cesium.Viewer</li>
@@ -38,12 +38,22 @@ export class DemoApp extends LitElement {
 
   render() {
     return html`
-      <div style="border: 1px solid green; margin: 2px; padding: 5px">
+      <style>
+        .container {
+          border: 1px solid green;
+          margin: 2px;
+          padding: 4px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        fieldset {
+          margin: 0;
+        }
+      </style>
+      <div class="container">
         ${this.about}
         <flight-dashboard></flight-dashboard>
-        <!--
-        <cesium-viewer homeButton helpButton></cesium-viewer>
-        -->
       </div>
     `;
   }
